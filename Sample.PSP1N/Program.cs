@@ -7,7 +7,9 @@ namespace Sample
 	class Program
 	{
 		private const string FileName = "test.bin";
-		private const int CountPoint = 100;
+		private const int CountPoint = 1000000;
+		private static Random _random = new Random();
+		private static DateTime _dateTime = DateTime.Now;
 
 		static void Main(string[] args)
 		{
@@ -15,34 +17,42 @@ namespace Sample
 			PSP1NCodec codec = new PSP1NCodec(StartBit.Zero, structurePackage);
 			Serializer serializator = new Serializer(codec);
 
-
+			int progress = 0;
 			using (FileStream fs = new FileStream(FileName, FileMode.Create))
 			{
 				for (int i = 0; i < CountPoint; i++)
 				{
-					Point point = new Point
-					{
-						DateTime = DateTime.Now + TimeSpan.FromMilliseconds(i),
-						ChannelsData = new int[10] { 1, 4095, 30, 40, 200, 600, 900, 1111, 3001, 4095 },
-					};
-
+					Point point = CreatePoint(i);
 					serializator.Serialize(fs, point);
+
+					int unit = CountPoint / 100;
+					if (i % unit == 0)
+					{
+						Console.Clear();
+						Console.WriteLine(++progress + "%");
+					}
 				}
 			}
 
 			using (FileStream fs = new FileStream(FileName, FileMode.Open))
 			{
-				Point point;
 				for (int i = 0; i < CountPoint; i++)
 				{
-					point = serializator.Desirialize<Point>(fs);
-					Console.WriteLine($"{point.DateTime} {point.DateTime.Millisecond}ms");
-					foreach (var item in point.ChannelsData)
-					{
-						Console.WriteLine(item);
-					}
+					Point point = serializator.Desirialize<Point>(fs);
+					Console.WriteLine(point);
 				}
 			}
+		}
+
+		static Point CreatePoint(int count)
+		{
+			Point point = new Point
+			{
+				DateTime = _dateTime + TimeSpan.FromMilliseconds(count),
+				ChannelsData = new int[10] { 1, 22, 30, 40, 200, 600, 900, 1111, 3001, _random.Next(4096) },
+			};
+
+			return point;
 		}
 	}
 }

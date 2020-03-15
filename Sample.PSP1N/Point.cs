@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using PSP1N;
 
 namespace Sample
@@ -28,6 +29,19 @@ namespace Sample
 			{
 				ChannelsData[i] = (int)data.Pop();
 			}
+		}
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append($"{DateTime} {DateTime.Millisecond}ms");
+			for (int i = 0; i < ChannelsData.Length; i++)
+			{
+				sb.Append($" | {i}: {ChannelsData[i]}");
+
+			}
+			
+			return sb.ToString();
 		}
 	}
 }
